@@ -1,310 +1,347 @@
-
-<h2 class="sr-only">AgroSight Ghana — AI crop advisory dashboard showing yield risk by region, seasonal planting advisories, and an AI chat panel for extension officers.</h2>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AgroSight Ghana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-/* Import a clean Google Font */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-
 :root {
-  --color-background-primary: #ffffff;
-  --color-background-secondary: #f7f9fc;
-  --color-text-primary: #2c3e50;
-  --color-text-secondary: #7f8c8d;
-  --color-border-primary: #e0e6ed;
-  --color-accent-teal: #1D9E75;
-  --color-accent-amber: #EF9F27;
-  --color-accent-red: #D85A30;
-  --border-radius-md: 8px;
-  --border-radius-lg: 12px;
+  --forest: #0B3D2E;
+  --forest-mid: #145C43;
+  --leaf: #1D9E75;
+  --leaf-light: #2ECC97;
+  --gold: #E8A838;
+  --danger: #C0392B;
+  --warn: #E67E22;
+  --cream: #FAF7F2;
+  --parchment: #F0EBE1;
+  --ink: #1A1A14;
+  --ink-mid: #3D3D35;
+  --ink-light: #7A7A6E;
+  --white: #FFFFFF;
+  --card-bg: rgba(255,255,255,0.88);
+  --shadow: 0 4px 24px rgba(11,61,46,0.10);
+  --shadow-lg: 0 8px 40px rgba(11,61,46,0.18);
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 10% 20%,rgba(29,158,117,0.08) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 90% 80%,rgba(20,92,67,0.06) 0%,transparent 60%);pointer-events:none;}
 
-body {
-  font-family: 'Poppins', sans-serif;
-  background: var(--color-background-secondary);
-  color: var(--color-text-primary);
-  margin: 0;
-  padding: 0;
-}
+/* HEADER */
+header{position:relative;z-index:10;background:var(--forest);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:66px;box-shadow:0 2px 20px rgba(11,61,46,0.35);}
+.hdr-left{display:flex;align-items:center;gap:14px;}
+.logo-mark{width:40px;height:40px;background:linear-gradient(135deg,var(--leaf),var(--leaf-light));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px;box-shadow:0 2px 12px rgba(29,158,117,0.45);}
+.logo-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--white);letter-spacing:-0.3px;}
+.logo-sub{font-size:11px;color:rgba(255,255,255,0.5);margin-top:-1px;}
+.hdr-right{display:flex;align-items:center;gap:14px;}
+.live-pill{display:flex;align-items:center;gap:6px;background:rgba(29,158,117,0.18);border:1px solid rgba(29,158,117,0.4);border-radius:20px;padding:4px 13px;font-size:11px;color:var(--leaf-light);font-weight:500;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--leaf-light);animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.season-tag{font-size:11px;color:rgba(255,255,255,0.45);font-weight:300;}
 
-/* Header */
-.dash-header {
-  background: linear-gradient(90deg, #1D9E75, #0F6E56);
-  color: #fff;
-  padding: 16px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 3px solid #0F6E56;
-}
+/* LAYOUT */
+main{position:relative;z-index:1;padding:28px 32px 44px;display:flex;flex-direction:column;gap:22px;max-width:1400px;margin:0 auto;}
+.sec-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;}
 
-.logo-text {
-  font-size: 20px;
-  font-weight: 600;
-}
+/* FADE UP */
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
 
-.logo-sub {
-  font-size: 12px;
-  color: #eafaf4;
-}
+/* METRICS */
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.metric-card{background:var(--card-bg);backdrop-filter:blur(12px);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.85);position:relative;overflow:hidden;opacity:0;transform:translateY(18px);animation:fadeUp 0.5s ease forwards;}
+.metric-card:nth-child(1){animation-delay:.08s;}
+.metric-card:nth-child(2){animation-delay:.16s;}
+.metric-card:nth-child(3){animation-delay:.24s;}
+.metric-card:nth-child(4){animation-delay:.32s;}
+.metric-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--leaf),var(--leaf-light));transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+.metric-card:hover::after{transform:scaleX(1);}
+.metric-icon{font-size:24px;margin-bottom:10px;}
+.metric-num{font-family:'DM Serif Display',serif;font-size:34px;line-height:1;color:var(--forest);}
+.metric-num.danger{color:var(--danger);}
+.metric-num.warn{color:var(--warn);}
+.metric-label{font-size:11px;color:var(--ink-light);margin-top:5px;}
+.metric-delta{font-size:11px;margin-top:7px;font-weight:500;}
+.d-up{color:var(--leaf);}
+.d-down{color:var(--danger);}
+.d-neutral{color:var(--ink-light);}
 
-/* Metric cards */
-.metric-card {
-  background: #fff;
-  border-radius: var(--border-radius-md);
-  padding: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  text-align: center;
-}
+/* MID ROW */
+.mid-row{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;}
+.card{background:var(--card-bg);backdrop-filter:blur(12px);border-radius:18px;padding:22px 24px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.85);opacity:0;transform:translateY(18px);animation:fadeUp 0.5s ease forwards;animation-delay:.4s;}
+.card-title{font-family:'DM Serif Display',serif;font-size:18px;color:var(--forest);margin-bottom:4px;}
+.card-sub{font-size:11px;color:var(--ink-light);margin-bottom:18px;}
 
-.metric-label {
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
+/* RISK */
+.risk-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,0.04);}
+.risk-item:last-child{border-bottom:none;}
+.risk-name{font-size:12px;font-weight:500;min-width:136px;color:var(--ink-mid);}
+.risk-track{flex:1;height:8px;background:var(--parchment);border-radius:4px;overflow:hidden;}
+.risk-fill{height:100%;border-radius:4px;width:0%;transition:width 1.3s cubic-bezier(.22,1,.36,1);}
+.fill-high{background:linear-gradient(90deg,var(--danger),#E74C3C);}
+.fill-med{background:linear-gradient(90deg,var(--warn),var(--gold));}
+.fill-low{background:linear-gradient(90deg,var(--leaf),var(--leaf-light));}
+.risk-badge{font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;min-width:42px;text-align:center;letter-spacing:.3px;}
+.badge-high{background:#FDECEA;color:var(--danger);}
+.badge-med{background:#FEF3E2;color:var(--warn);}
+.badge-low{background:#E8F5F0;color:var(--forest-mid);}
 
-.metric-value {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--color-accent-teal);
-}
+/* TABLE */
+.adv-table{width:100%;border-collapse:collapse;}
+.adv-table th{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-light);padding:0 8px 10px;text-align:left;border-bottom:1px solid var(--parchment);}
+.adv-table td{padding:10px 8px;font-size:12px;color:var(--ink-mid);border-bottom:1px solid rgba(0,0,0,0.04);vertical-align:middle;}
+.adv-table tr:last-child td{border-bottom:none;}
+.crop-chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
+.ch-maize{background:#EAF3DE;color:#3B6D11;}
+.ch-cassava{background:#E1F5EE;color:#0F6E56;}
+.ch-yam{background:#FEF3E2;color:#854F0B;}
+.ch-soy{background:#EAF3DE;color:#3B6D11;}
+.ch-cow{background:#FDECEA;color:var(--danger);}
+.s-ok{color:var(--leaf);font-size:11px;font-weight:600;}
+.s-warn{color:var(--warn);font-size:11px;font-weight:600;}
+.s-bad{color:var(--danger);font-size:11px;font-weight:600;}
 
-/* Panels */
-.panel {
-  background: #fff;
-  border-radius: var(--border-radius-lg);
-  padding: 18px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
+/* BOTTOM */
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
 
-.panel-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: 12px;
-}
+/* CHART CARD */
+.chart-card{background:var(--card-bg);backdrop-filter:blur(12px);border-radius:18px;padding:22px 24px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.85);opacity:0;transform:translateY(18px);animation:fadeUp .5s ease forwards;animation-delay:.55s;}
+.chart-wrap{position:relative;height:220px;margin-top:6px;}
 
-/* Risk bars */
-.r-low { background: var(--color-accent-teal); }
-.r-med { background: var(--color-accent-amber); }
-.r-high { background: var(--color-accent-red); }
+/* CHAT */
+.chat-card{background:var(--forest);border-radius:18px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,0.07);opacity:0;transform:translateY(18px);animation:fadeUp .5s ease forwards;animation-delay:.65s;height:380px;}
+.chat-top{padding:15px 20px;background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:12px;}
+.chat-avatar{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--leaf),var(--leaf-light));display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.chat-name{font-family:'DM Serif Display',serif;font-size:16px;color:var(--white);}
+.chat-desc{font-size:11px;color:rgba(255,255,255,0.42);margin-top:1px;}
+.chat-status-wrap{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:10px;color:var(--leaf-light);font-weight:500;}
+.chat-status-dot{width:6px;height:6px;border-radius:50%;background:var(--leaf-light);animation:blink 2s infinite;}
+.chat-messages{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent;}
+.bubble{max-width:88%;padding:10px 14px;border-radius:14px;font-size:12.5px;line-height:1.55;}
+.bubble-ai{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.88);border-bottom-left-radius:4px;align-self:flex-start;}
+.bubble-user{background:linear-gradient(135deg,var(--leaf),var(--leaf-light));color:var(--white);border-bottom-right-radius:4px;align-self:flex-end;}
+.bubble-typing{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);font-style:italic;font-size:11px;align-self:flex-start;border-bottom-left-radius:4px;}
+.chips-row{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 10px;}
+.q-chip{font-size:11px;padding:4px 11px;border:1px solid rgba(255,255,255,0.14);border-radius:20px;cursor:pointer;color:rgba(255,255,255,0.58);background:rgba(255,255,255,0.05);transition:all .2s;white-space:nowrap;}
+.q-chip:hover{border-color:var(--leaf-light);color:var(--leaf-light);background:rgba(29,158,117,0.12);}
+.err-banner{display:none;background:#FDECEA;border:1px solid #FADBD8;border-radius:10px;padding:10px 14px;font-size:11.5px;color:var(--danger);margin:0 16px 8px;}
+.chat-input-row{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.07);display:flex;gap:8px;align-items:center;}
+.chat-input{flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:9px 13px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--white);outline:none;transition:border-color .2s;}
+.chat-input::placeholder{color:rgba(255,255,255,0.28);}
+.chat-input:focus{border-color:var(--leaf);}
+.send-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--leaf),var(--leaf-light));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s;flex-shrink:0;color:white;}
+.send-btn:hover{transform:scale(1.07);box-shadow:0 4px 16px rgba(29,158,117,0.4);}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
 
-/* Chat panel */
-.chat-panel {
-  background: #fff;
-  border-radius: var(--border-radius-lg);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.chat-header {
-  background: var(--color-background-secondary);
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--color-border-primary);
-}
-
-.msg-ai {
-  background: var(--color-background-secondary);
-  color: var(--color-text-primary);
-}
-
-.msg-user {
-  background: var(--color-accent-teal);
-  color: #fff;
-}
+/* FOOTER */
+footer{position:relative;z-index:1;text-align:center;padding:18px;font-size:11px;color:var(--ink-light);}
+footer span{color:var(--leaf);font-weight:500;}
 </style>
+</head>
+<body>
 
-<div class="dash-header">
-  <div class="logo">
-    <div class="logo-icon"><i class="ti ti-plant-2" aria-hidden="true"></i></div>
+<header>
+  <div class="hdr-left">
+    <div class="logo-mark">🌿</div>
     <div>
-      <div class="logo-text">AgroSight Ghana</div>
-      <div class="logo-sub">AI Crop Advisory for Extension Officers</div>
+      <div class="logo-title">AgroSight Ghana</div>
+      <div class="logo-sub">AI Crop Advisory · Extension Officer Dashboard</div>
     </div>
   </div>
-  <div class="header-badge"><i class="ti ti-circle-filled" style="font-size:8px; margin-right:4px;" aria-hidden="true"></i>Live · Season 1, 2026</div>
-</div>
-
-<div class="dash-body">
-
-  <div class="metrics">
-    <div class="metric-card">
-      <div class="metric-label">Districts monitored</div>
-      <div class="metric-value">16</div>
-      <div class="metric-trend trend-up"><i class="ti ti-arrow-up-right" style="font-size:11px" aria-hidden="true"></i> All regions active</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-label">High-risk districts</div>
-      <div class="metric-value" style="color:#D85A30;">4</div>
-      <div class="metric-trend trend-down"><i class="ti ti-alert-triangle" style="font-size:11px" aria-hidden="true"></i> Intervention needed</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-label">Avg predicted yield</div>
-      <div class="metric-value">2.1 t/ha</div>
-      <div class="metric-trend trend-down"><i class="ti ti-arrow-down-right" style="font-size:11px" aria-hidden="true"></i> -8% vs last season</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-label">Farmers reachable</div>
-      <div class="metric-value">48K</div>
-      <div class="metric-trend trend-up"><i class="ti ti-users" style="font-size:11px" aria-hidden="true"></i> via 230 officers</div>
-    </div>
+  <div class="hdr-right">
+    <div class="live-pill"><div class="live-dot"></div>Live</div>
+    <div class="season-tag">Season 1 · 2026</div>
   </div>
+</header>
 
-  <div class="panels">
-    <div class="panel">
-      <div class="panel-title"><i class="ti ti-map-pin" aria-hidden="true"></i> Yield risk by region</div>
-      <div id="risk-list">
-        <div class="risk-row"><span class="risk-region">Northern Region</span><div class="risk-bar-wrap"><div class="risk-bar r-high" style="width:0%" data-w="82%"></div></div><span class="risk-label r-high">High</span></div>
-        <div class="risk-row"><span class="risk-region">Upper East</span><div class="risk-bar-wrap"><div class="risk-bar r-high" style="width:0%" data-w="75%"></div></div><span class="risk-label r-high">High</span></div>
-        <div class="risk-row"><span class="risk-region">Savannah Region</span><div class="risk-bar-wrap"><div class="risk-bar r-med" style="width:0%" data-w="58%"></div></div><span class="risk-label r-med">Med</span></div>
-        <div class="risk-row"><span class="risk-region">Brong-Ahafo</span><div class="risk-bar-wrap"><div class="risk-bar r-med" style="width:0%" data-w="45%"></div></div><span class="risk-label r-med">Med</span></div>
-        <div class="risk-row"><span class="risk-region">Ashanti Region</span><div class="risk-bar-wrap"><div class="risk-bar r-low" style="width:0%" data-w="28%"></div></div><span class="risk-label r-low">Low</span></div>
-        <div class="risk-row"><span class="risk-region">Eastern Region</span><div class="risk-bar-wrap"><div class="risk-bar r-low" style="width:0%" data-w="22%"></div></div><span class="risk-label r-low">Low</span></div>
-        <div class="risk-row"><span class="risk-region">Western Region</span><div class="risk-bar-wrap"><div class="risk-bar r-low" style="width:0%" data-w="15%"></div></div><span class="risk-label r-low">Low</span></div>
+<main>
+
+  <div>
+    <div class="sec-label">Overview</div>
+    <div class="metrics-row">
+      <div class="metric-card">
+        <div class="metric-icon">🗺️</div>
+        <div class="metric-num">16</div>
+        <div class="metric-label">Regions monitored</div>
+        <div class="metric-delta d-up">↑ Full national coverage</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">⚠️</div>
+        <div class="metric-num danger">4</div>
+        <div class="metric-label">High-risk districts</div>
+        <div class="metric-delta d-down">↑ Up from 2 last season</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">🌾</div>
+        <div class="metric-num warn">2.1<span style="font-size:16px"> t/ha</span></div>
+        <div class="metric-label">Avg predicted yield</div>
+        <div class="metric-delta d-down">↓ −8% vs last season</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">👩‍🌾</div>
+        <div class="metric-num">48K</div>
+        <div class="metric-label">Farmers reachable</div>
+        <div class="metric-delta d-neutral">via 230 extension officers</div>
       </div>
     </div>
+  </div>
 
-    <div class="panel">
-      <div class="panel-title"><i class="ti ti-calendar" aria-hidden="true"></i> Seasonal planting advisory</div>
-      <table class="advisory-table">
-        <thead>
-          <tr><th>Crop</th><th>Region</th><th>Plant window</th><th>Status</th></tr>
-        </thead>
+  <div class="mid-row">
+    <div class="card">
+      <div class="card-title">Yield Risk by Region</div>
+      <div class="card-sub">Based on rainfall, soil quality & historical yield data</div>
+      <div class="risk-item"><span class="risk-name">Northern Region</span><div class="risk-track"><div class="risk-fill fill-high" data-w="82"></div></div><span class="risk-badge badge-high">High</span></div>
+      <div class="risk-item"><span class="risk-name">Upper East</span><div class="risk-track"><div class="risk-fill fill-high" data-w="75"></div></div><span class="risk-badge badge-high">High</span></div>
+      <div class="risk-item"><span class="risk-name">Savannah Region</span><div class="risk-track"><div class="risk-fill fill-med" data-w="58"></div></div><span class="risk-badge badge-med">Medium</span></div>
+      <div class="risk-item"><span class="risk-name">Brong-Ahafo</span><div class="risk-track"><div class="risk-fill fill-med" data-w="44"></div></div><span class="risk-badge badge-med">Medium</span></div>
+      <div class="risk-item"><span class="risk-name">Ashanti Region</span><div class="risk-track"><div class="risk-fill fill-low" data-w="27"></div></div><span class="risk-badge badge-low">Low</span></div>
+      <div class="risk-item"><span class="risk-name">Eastern Region</span><div class="risk-track"><div class="risk-fill fill-low" data-w="21"></div></div><span class="risk-badge badge-low">Low</span></div>
+      <div class="risk-item"><span class="risk-name">Western Region</span><div class="risk-track"><div class="risk-fill fill-low" data-w="14"></div></div><span class="risk-badge badge-low">Low</span></div>
+    </div>
+
+    <div class="card" style="animation-delay:.48s;">
+      <div class="card-title">Seasonal Planting Advisory</div>
+      <div class="card-sub">Current recommendations — May 2026</div>
+      <table class="adv-table">
+        <thead><tr><th>Crop</th><th>Region</th><th>Window</th><th>Status</th></tr></thead>
         <tbody>
-          <tr><td><span class="crop-badge badge-green">Maize</span></td><td>Ashanti</td><td>Apr – Jun</td><td style="color:#1D9E75; font-size:11px;">✓ Optimal</td></tr>
-          <tr><td><span class="crop-badge badge-teal">Cassava</span></td><td>Eastern</td><td>Mar – May</td><td style="color:#1D9E75; font-size:11px;">✓ Optimal</td></tr>
-          <tr><td><span class="crop-badge badge-amber">Yam</span></td><td>Northern</td><td>May – Jul</td><td style="color:#EF9F27; font-size:11px;">⚠ Delayed</td></tr>
-          <tr><td><span class="crop-badge badge-green">Soybean</span></td><td>Brong-Ahafo</td><td>Jun – Aug</td><td style="color:#EF9F27; font-size:11px;">⚠ Monitor</td></tr>
-          <tr><td><span class="crop-badge badge-teal">Cowpea</span></td><td>Upper East</td><td>Jun – Aug</td><td style="color:#D85A30; font-size:11px;">✗ At risk</td></tr>
+          <tr><td><span class="crop-chip ch-maize">Maize</span></td><td>Ashanti</td><td>Apr–Jun</td><td><span class="s-ok">✓ Optimal</span></td></tr>
+          <tr><td><span class="crop-chip ch-cassava">Cassava</span></td><td>Eastern</td><td>Mar–May</td><td><span class="s-ok">✓ Optimal</span></td></tr>
+          <tr><td><span class="crop-chip ch-yam">Yam</span></td><td>Northern</td><td>May–Jul</td><td><span class="s-warn">⚠ Delayed</span></td></tr>
+          <tr><td><span class="crop-chip ch-soy">Soybean</span></td><td>Brong-Ahafo</td><td>Jun–Aug</td><td><span class="s-warn">⚠ Monitor</span></td></tr>
+          <tr><td><span class="crop-chip ch-cow">Cowpea</span></td><td>Upper East</td><td>Jun–Aug</td><td><span class="s-bad">✗ At Risk</span></td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <div class="bottom-panels">
-    <div class="chart-panel">
-      <div class="panel-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> Predicted yield by crop (t/ha)</div>
-      <div style="position: relative; width: 100%; height: 220px;">
-        <canvas id="yieldChart" role="img" aria-label="Bar chart showing predicted crop yields in tonnes per hectare for maize, cassava, yam, soybean and cowpea in Ghana 2026.">Maize 2.4, Cassava 8.1, Yam 5.3, Soybean 1.2, Cowpea 0.8 tonnes per hectare.</canvas>
-      </div>
+  <div class="bottom-row">
+    <div class="chart-card">
+      <div class="card-title">Predicted Yield by Crop</div>
+      <div class="card-sub">Tonnes per hectare — Ghana 2026 forecast</div>
+      <div class="chart-wrap"><canvas id="yieldChart"></canvas></div>
     </div>
 
-    <div class="chat-panel">
-      <div class="chat-header">
-        <div class="chat-header-icon"><i class="ti ti-robot" aria-hidden="true"></i></div>
+    <div class="chat-card">
+      <div class="chat-top">
+        <div class="chat-avatar">🤖</div>
         <div>
-          <div class="chat-title">AgroAI Assistant</div>
-          <div class="chat-sub">Ask about crops, weather, soil, interventions</div>
+          <div class="chat-name">AgroAI Assistant</div>
+          <div class="chat-desc">Ask about crops, soil, weather & interventions</div>
         </div>
-        <div class="ai-dot" id="aiDot"></div>
+        <div class="chat-status-wrap"><div class="chat-status-dot"></div>Online</div>
       </div>
       <div class="chat-messages" id="chatMessages">
-        <div class="msg msg-ai">Hello! I'm AgroAI. Ask me about crop risks, planting windows, or best practices for any region in Ghana.</div>
+        <div class="bubble bubble-ai">Hello! I'm AgroAI 🌿 Ask me anything about crop risks, planting windows, soil tips, or best practices for any region in Ghana.</div>
       </div>
-      <div class="quick-chips" id="quickChips">
-        <span class="chip" onclick="sendChip(this)">Best maize variety for Northern Region?</span>
-        <span class="chip" onclick="sendChip(this)">Why is cowpea at risk in Upper East?</span>
-        <span class="chip" onclick="sendChip(this)">Soil tips for Brong-Ahafo yam?</span>
+      <div class="chips-row" id="quickChips">
+        <span class="q-chip" onclick="useChip(this)">Best maize variety, Northern?</span>
+        <span class="q-chip" onclick="useChip(this)">Why is cowpea at risk?</span>
+        <span class="q-chip" onclick="useChip(this)">Brong-Ahafo yam soil tips?</span>
       </div>
+      <div class="err-banner" id="errBanner">⚠️ Could not reach AI. Check your internet and try again.</div>
       <div class="chat-input-row">
-        <input type="text" id="chatInput" placeholder="Ask about any crop or region..." onkeydown="if(event.key==='Enter') sendChat()" />
-        <button class="send-btn" id="sendBtn" onclick="sendChat()" aria-label="Send message">
-          <i class="ti ti-send" aria-hidden="true"></i>
-        </button>
+        <input class="chat-input" id="chatInput" type="text" placeholder="Ask about any crop or region…" onkeydown="if(event.key==='Enter')sendMsg()"/>
+        <button class="send-btn" id="sendBtn" onclick="sendMsg()">➤</button>
       </div>
     </div>
   </div>
 
-</div>
+</main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<footer>
+  Built for <span>Women Techsters Ghana AI Hackathon 2026</span> &nbsp;·&nbsp; SDG 2: Zero Hunger &nbsp;·&nbsp; SDG 13: Climate Action
+</footer>
+
 <script>
-setTimeout(() => {
-  document.querySelectorAll('.risk-bar').forEach(bar => {
-    bar.style.width = bar.dataset.w;
-  });
-}, 300);
+/* RISK BARS */
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.querySelectorAll('.risk-fill').forEach(el=>{el.style.width=el.dataset.w+'%';});
+  },350);
+});
 
-new Chart(document.getElementById('yieldChart'), {
-  type: 'bar',
-  data: {
-    labels: ['Maize', 'Cassava', 'Yam', 'Soybean', 'Cowpea'],
-    datasets: [{
-      label: 'Predicted yield (t/ha)',
-      data: [2.4, 8.1, 5.3, 1.2, 0.8],
-      backgroundColor: ['#1D9E75','#1D9E75','#EF9F27','#EF9F27','#D85A30'],
-      borderRadius: 4,
-      borderSkipped: false
+/* CHART */
+new Chart(document.getElementById('yieldChart').getContext('2d'),{
+  type:'bar',
+  data:{
+    labels:['Maize','Cassava','Yam','Soybean','Cowpea'],
+    datasets:[{
+      data:[2.4,8.1,5.3,1.2,0.8],
+      backgroundColor:['rgba(29,158,117,.85)','rgba(29,158,117,.85)','rgba(230,126,34,.85)','rgba(230,126,34,.85)','rgba(192,57,43,.85)'],
+      borderRadius:7,borderSkipped:false,borderWidth:0
     }]
   },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.y.toFixed(1) + ' t/ha' } }
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:c=>'  '+c.parsed.y.toFixed(1)+' t/ha'},backgroundColor:'#0B3D2E',titleColor:'rgba(255,255,255,0.6)',bodyColor:'#fff',padding:10,cornerRadius:8}
     },
-    scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-      y: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { font: { size: 11 }, callback: v => v + ' t' }, beginAtZero: true }
-    }
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:12,family:'DM Sans'},color:'#7A7A6E'}},
+      y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11,family:'DM Sans'},color:'#7A7A6E',callback:v=>v+' t'},beginAtZero:true}
+    },
+    animation:{duration:1200,easing:'easeOutQuart'}
   }
 });
 
-const SYSTEM = `You are AgroAI, an agricultural advisory assistant for extension officers in Ghana. You have expertise in Ghanaian crops (maize, cassava, yam, soybean, cowpea, rice, plantain), regional growing conditions across Ghana's 16 regions, soil types, pest management, climate patterns, and smallholder farming best practices. Keep answers concise (2-4 sentences), practical, and specific to Ghana. Always mention specific regions, varieties, or months when relevant.`;
+/* CHAT */
+const SYS=`You are AgroAI, a helpful agricultural advisory assistant for extension officers in Ghana. You have deep expertise in Ghanaian crops (maize, cassava, yam, soybean, cowpea, rice, plantain, groundnuts), regional growing conditions across all 16 regions, soil types, pest and disease management, climate and rainfall patterns, and smallholder farming best practices. Keep answers concise (2-4 sentences), practical and actionable, and specific to Ghana. Always mention specific regions, crop varieties, or seasonal months where relevant.`;
+const hist=[];
 
-const history = [];
-
-async function sendChat() {
-  const input = document.getElementById('chatInput');
-  const msg = input.value.trim();
-  if (!msg) return;
-  input.value = '';
-  addMsg(msg, 'user');
-  history.push({ role: 'user', content: msg });
-  const btn = document.getElementById('sendBtn');
-  btn.disabled = true;
-  document.getElementById('aiDot').style.background = '#EF9F27';
-  addMsg('Thinking...', 'thinking');
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: SYSTEM,
-        messages: history
-      })
+async function sendMsg(){
+  const inp=document.getElementById('chatInput');
+  const txt=inp.value.trim();
+  if(!txt)return;
+  inp.value='';
+  document.getElementById('errBanner').style.display='none';
+  addBub(txt,'user');
+  hist.push({role:'user',content:txt});
+  const btn=document.getElementById('sendBtn');
+  btn.disabled=true;
+  const t=addBub('AgroAI is thinking…','typing');
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYS,messages:hist})
     });
-    const data = await res.json();
-    const reply = data.content?.[0]?.text || 'Sorry, I could not get a response.';
-    removeThinking();
-    addMsg(reply, 'ai');
-    history.push({ role: 'assistant', content: reply });
-  } catch(e) {
-    removeThinking();
-    addMsg('Connection error. Please check your internet.', 'ai');
+    const d=await r.json();
+    if(d.error)throw new Error(d.error.message);
+    const reply=d.content?.[0]?.text||'Sorry, no response generated.';
+    t.remove();
+    addBub(reply,'ai');
+    hist.push({role:'assistant',content:reply});
+  }catch(e){
+    t.remove();
+    document.getElementById('errBanner').style.display='block';
+    console.error(e);
   }
-  btn.disabled = false;
-  document.getElementById('aiDot').style.background = '#1D9E75';
+  btn.disabled=false;
 }
 
-function sendChip(el) {
-  document.getElementById('chatInput').value = el.textContent;
-  document.getElementById('quickChips').style.display = 'none';
-  sendChat();
+function useChip(el){
+  document.getElementById('chatInput').value=el.textContent;
+  document.getElementById('quickChips').style.display='none';
+  sendMsg();
 }
 
-function addMsg(text, type) {
-  const div = document.createElement('div');
-  div.className = type === 'thinking' ? 'msg msg-thinking' : (type === 'user' ? 'msg msg-user' : 'msg msg-ai');
-  if (type === 'thinking') div.id = 'thinkingMsg';
-  div.textContent = text;
-  const container = document.getElementById('chatMessages');
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-}
-
-function removeThinking() {
-  const t = document.getElementById('thinkingMsg');
-  if (t) t.remove();
+function addBub(txt,type){
+  const d=document.createElement('div');
+  d.className=type==='user'?'bubble bubble-user':type==='typing'?'bubble bubble-typing':'bubble bubble-ai';
+  d.textContent=txt;
+  const box=document.getElementById('chatMessages');
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+  return d;
 }
 </script>
+</body>
+</html>

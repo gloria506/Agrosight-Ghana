@@ -1,1 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AgroSight Ghana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --forest: #0B3D2E;
+  --forest-mid: #145C43;
+  --leaf: #1D9E75;
+  --leaf-light: #2ECC97;
+  --gold: #E8A838;
+  --danger: #C0392B;
+  --warn: #E67E22;
+  --cream: #FAF7F2;
+  --parchment: #F0EBE1;
+  --ink: #1A1A14;
+  --ink-mid: #3D3D35;
+  --ink-light: #7A7A6E;
+  --white: #FFFFFF;
+  --card-bg: rgba(255,255,255,0.88);
+  --shadow: 0 4px 24px rgba(11,61,46,0.10);
+  --shadow-lg: 0 8px 40px rgba(11,61,46,0.18);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 10% 20%,rgba(29,158,117,0.08) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 90% 80%,rgba(20,92,67,0.06) 0%,transparent 60%);pointer-events:none;}
 
+/* HEADER */
+header{position:relative;z-index:10;background:var(--forest);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:66px;box-shadow:0 2px 20px rgba(11,61,46,0.35);}
+.hdr-left{display:flex;align-items:center;gap:14px;}
+.logo-mark{width:40px;height:40px;background:linear-gradient(135deg,var(--leaf),var(--leaf-light));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px;box-shadow:0 2px 12px rgba(29,158,117,0.45);}
+.logo-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--white);letter-spacing:-0.3px;}
+.logo-sub{font-size:11px;color:rgba(255,255,255,0.5);margin-top:-1px;}
+.hdr-right{display:flex;align-items:center;gap:14px;}
+.live-pill{display:flex;align-items:center;gap:6px;background:rgba(29,158,117,0.18);border:1px solid rgba(29,158,117,0.4);border-radius:20px;padding:4px 13px;font-size:11px;color:var(--leaf-light);font-weight:500;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--leaf-light);animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.season-tag{font-size:11px;color:rgba(255,255,255,0.45);font-weight:300;}
+
+/* LAYOUT */
+main{position:relative;z-index:1;padding:28px 32px 44px;display:flex;flex-direction:column;gap:22px;max-width:1400px;margin:0 auto;}
+.sec-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;}
+
+/* FADE UP */
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+
+/* METRICS */
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.metric-card{background:var(--card-bg);backdrop-filter:blur(12px);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.85);position:relative;overflow:hidden;opacity:0;transform:translateY(18px);animation:fadeUp 0.5s ease forwards;}
+.metric-card:nth-child(1){animation-delay:.08s;}
+.metric-card:nth-child(2){animation-delay:.16s;}
+.metric-card:nth-child(3){animation-delay:.24s;}
+.metric-card:nth-child(4){animation-delay:.32s;}
+.metric-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--leaf),var(--leaf-light));transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+.metric-card:hover::after{transform:scaleX(1);}
+.metric-icon{font-size:24px;margin-bottom:10px;}
+.metric-num{font-family:'DM Serif Display',serif;font-size:34px;line-height:1;color:var(--forest);}
+.metric-num.danger{color:var(--danger);}
+.metric-num.warn{color:var(--warn);}
+.metric-label{font-size:11px;color:var(--ink-light);margin-top:5px;}
+.metric-delta{font-size:11px;margin-top:7px;font-weight:500;}
+.d-up{color:var(--leaf);}
+.d-down{color:var(--danger);}
+.d-neutral{color:var(--ink-light);}
+
+/* MID ROW */
+.mid-row{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;}
+.card{background:var(--card-bg);backdrop-filter:blur(12px);border-radius:18px;padding:22px 24px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.85);opacity:0;transform:translateY(18px);animation:fadeUp 0.5s ease forwards;animation-delay:.4s;}
+.card-title{font-family:'DM Serif Display',serif;font-size:18px;color:var(--forest);margin-bottom:4px;}
+.card-sub{font-size:11px;color:var(--ink-light);margin-bottom:18px;}
+
+/* RISK */
+.risk-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,0.04);}
+.risk-item:last-child{border-bottom:none;}
+.risk-name{font-size:12px;font-weight:500;min-width:136px;color:var(--ink-mid);}
+.risk-track{flex:1;height:8px;background:var(--parchment);border-radius:4px;overflow:hidden;}
+.risk-fill{height:100%;border-radius:4px;width:0%;transition:width 1.3s cubic-bezier(.22,1,.36,1);}
+.fill-high{background:linear-gradient(90deg,var(--danger),#E74C3C);}
+.fill-med{background:linear-gradient(90deg,var(--warn),var(--gold));}
+.fill-low{background:linear-gradient(90deg,var(--leaf),var(--leaf-light));}
+.risk-badge{font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;min-width:42px;text-align:center;letter-spacing:.3px;}
+.badge-high{background:#FDECEA;color:var(--danger);}
+.badge-med{background:#FEF3E2;color:var(--warn);}
+.badge-low{background:#E8F5F0;color:var(--forest-mid);}
+
+/* TABLE */
+.adv-table{width:100%;border-collapse:collapse;}
+.adv-table th{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-light);padding:0 8px 10px;text-align:left;border-bottom:1px solid var(--parchment);}
+.adv-table td{padding:10px 8px;font-size:12px;color:var(--ink-mid);border-bottom:1px solid rgba(0,0,0,0.04);vertical-align:middle;}
+.adv-table tr:last-child td{border-bottom:none;}
+.crop-chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
+.ch-maize{background:#EAF3DE;color:#3B6D11;}
+.ch-cassava{background:#E1F5EE;color:#0F6E56;}
+.ch-yam{background:#FEF3E2;color:#854F0B;}
+.ch-soy{background:#EAF3DE;color:#3B6D11;}
+.ch-cow{background:#FDECEA;color:var(--danger);}
+.s-ok{color:var(--leaf);font-size:11px;font-weight:600;}
+.s-warn{color:var(--warn);font-size:11px;font-weight:600;}
+.s-bad{color:var(--danger);font-size:11px;font-weight:600;}
+
+/* BOTTOM */
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+
+/* CHART CARD */
+.chart-card{background:var(--card-bg);backdrop-filter:blur(12px);border-radius:18px;padding:22px 24px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.85);opacity:0;transform:translateY(18px);animation:fadeUp .5s ease forwards;animation-delay:.55s;}
+.chart-wrap{position:relative;height:220px;margin-top:6px;}
+
+/* CHAT */
+.chat-card{background:var(--forest);border-radius:18px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,0.07);opacity:0;transform:translateY(18px);animation:fadeUp .5s ease forwards;animation-delay:.65s;height:380px;}
+.chat-top{padding:15px 20px;background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:12px;}
+.chat-avatar{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--leaf),var(--leaf-light));display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.chat-name{font-family:'DM Serif Display',serif;font-size:16px;color:var(--white);}
+.chat-desc{font-size:11px;color:rgba(255,255,255,0.42);margin-top:1px;}
+.chat-status-wrap{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:10px;color:var(--leaf-light);font-weight:500;}
+.chat-status-dot{width:6px;height:6px;border-radius:50%;background:var(--leaf-light);animation:blink 2s infinite;}
+.chat-messages{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent;}
+.bubble{max-width:88%;padding:10px 14px;border-radius:14px;font-size:12.5px;line-height:1.55;}
+.bubble-ai{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.88);border-bottom-left-radius:4px;align-self:flex-start;}
+.bubble-user{background:linear-gradient(135deg,var(--leaf),var(--leaf-light));color:var(--white);border-bottom-right-radius:4px;align-self:flex-end;}
+.bubble-typing{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);font-style:italic;font-size:11px;align-self:flex-start;border-bottom-left-radius:4px;}
+.chips-row{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 10px;}
+.q-chip{font-size:11px;padding:4px 11px;border:1px solid rgba(255,255,255,0.14);border-radius:20px;cursor:pointer;color:rgba(255,255,255,0.58);background:rgba(255,255,255,0.05);transition:all .2s;white-space:nowrap;}
+.q-chip:hover{border-color:var(--leaf-light);color:var(--leaf-light);background:rgba(29,158,117,0.12);}
+.err-banner{display:none;background:#FDECEA;border:1px solid #FADBD8;border-radius:10px;padding:10px 14px;font-size:11.5px;color:var(--danger);margin:0 16px 8px;}
+.chat-input-row{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.07);display:flex;gap:8px;align-items:center;}
+.chat-input{flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:9px 13px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--white);outline:none;transition:border-color .2s;}
+.chat-input::placeholder{color:rgba(255,255,255,0.28);}
+.chat-input:focus{border-color:var(--leaf);}
+.send-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--leaf),var(--leaf-light));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s;flex-shrink:0;color:white;}
+.send-btn:hover{transform:scale(1.07);box-shadow:0 4px 16px rgba(29,158,117,0.4);}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+/* FOOTER */
+footer{position:relative;z-index:1;text-align:center;padding:18px;font-size:11px;color:var(--ink-light);}
+footer span{color:var(--leaf);font-weight:500;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-left">
+    <div class="logo-mark">🌿</div>
+    <div>
+      <div class="logo-title">AgroSight Ghana</div>
+      <div class="logo-sub">AI Crop Advisory · Extension Officer Dashboard</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="live-pill"><div class="live-dot"></div>Live</div>
+    <div class="season-tag">Season 1 · 2026</div>
+  </div>
+</header>
+
+<main>
+
+  <div>
+    <div class="sec-label">Overview</div>
+    <div class="metrics-row">
+      <div class="metric-card">
+        <div class="metric-icon">🗺️</div>
+        <div class="metric-num">16</div>
+        <div class="metric-label">Regions monitored</div>
+        <div class="metric-delta d-up">↑ Full national coverage</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">⚠️</div>
+        <div class="metric-num danger">4</div>
+        <div class="metric-label">High-risk districts</div>
+        <div class="metric-delta d-down">↑ Up from 2 last season</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">🌾</div>
+        <div class="metric-num warn">2.1<span style="font-size:16px"> t/ha</span></div>
+        <div class="metric-label">Avg predicted yield</div>
+        <div class="metric-delta d-down">↓ −8% vs last season</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">👩‍🌾</div>
+        <div class="metric-num">48K</div>
+        <div class="metric-label">Farmers reachable</div>
+        <div class="metric-delta d-neutral">via 230 extension officers</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mid-row">
+    <div class="card">
+      <div class="card-title">Yield Risk by Region</div>
+      <div class="card-sub">Based on rainfall, soil quality & historical yield data</div>
+      <div class="risk-item"><span class="risk-name">Northern Region</span><div class="risk-track"><div class="risk-fill fill-high" data-w="82"></div></div><span class="risk-badge badge-high">High</span></div>
+      <div class="risk-item"><span class="risk-name">Upper East</span><div class="risk-track"><div class="risk-fill fill-high" data-w="75"></div></div><span class="risk-badge badge-high">High</span></div>
+      <div class="risk-item"><span class="risk-name">Savannah Region</span><div class="risk-track"><div class="risk-fill fill-med" data-w="58"></div></div><span class="risk-badge badge-med">Medium</span></div>
+      <div class="risk-item"><span class="risk-name">Brong-Ahafo</span><div class="risk-track"><div class="risk-fill fill-med" data-w="44"></div></div><span class="risk-badge badge-med">Medium</span></div>
+      <div class="risk-item"><span class="risk-name">Ashanti Region</span><div class="risk-track"><div class="risk-fill fill-low" data-w="27"></div></div><span class="risk-badge badge-low">Low</span></div>
+      <div class="risk-item"><span class="risk-name">Eastern Region</span><div class="risk-track"><div class="risk-fill fill-low" data-w="21"></div></div><span class="risk-badge badge-low">Low</span></div>
+      <div class="risk-item"><span class="risk-name">Western Region</span><div class="risk-track"><div class="risk-fill fill-low" data-w="14"></div></div><span class="risk-badge badge-low">Low</span></div>
+    </div>
+
+    <div class="card" style="animation-delay:.48s;">
+      <div class="card-title">Seasonal Planting Advisory</div>
+      <div class="card-sub">Current recommendations — May 2026</div>
+      <table class="adv-table">
+        <thead><tr><th>Crop</th><th>Region</th><th>Window</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><span class="crop-chip ch-maize">Maize</span></td><td>Ashanti</td><td>Apr–Jun</td><td><span class="s-ok">✓ Optimal</span></td></tr>
+          <tr><td><span class="crop-chip ch-cassava">Cassava</span></td><td>Eastern</td><td>Mar–May</td><td><span class="s-ok">✓ Optimal</span></td></tr>
+          <tr><td><span class="crop-chip ch-yam">Yam</span></td><td>Northern</td><td>May–Jul</td><td><span class="s-warn">⚠ Delayed</span></td></tr>
+          <tr><td><span class="crop-chip ch-soy">Soybean</span></td><td>Brong-Ahafo</td><td>Jun–Aug</td><td><span class="s-warn">⚠ Monitor</span></td></tr>
+          <tr><td><span class="crop-chip ch-cow">Cowpea</span></td><td>Upper East</td><td>Jun–Aug</td><td><span class="s-bad">✗ At Risk</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="bottom-row">
+    <div class="chart-card">
+      <div class="card-title">Predicted Yield by Crop</div>
+      <div class="card-sub">Tonnes per hectare — Ghana 2026 forecast</div>
+      <div class="chart-wrap"><canvas id="yieldChart"></canvas></div>
+    </div>
+
+    <div class="chat-card">
+      <div class="chat-top">
+        <div class="chat-avatar">🤖</div>
+        <div>
+          <div class="chat-name">AgroAI Assistant</div>
+          <div class="chat-desc">Ask about crops, soil, weather & interventions</div>
+        </div>
+        <div class="chat-status-wrap"><div class="chat-status-dot"></div>Online</div>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="bubble bubble-ai">Hello! I'm AgroAI 🌿 Ask me anything about crop risks, planting windows, soil tips, or best practices for any region in Ghana.</div>
+      </div>
+      <div class="chips-row" id="quickChips">
+        <span class="q-chip" onclick="useChip(this)">Best maize variety, Northern?</span>
+        <span class="q-chip" onclick="useChip(this)">Why is cowpea at risk?</span>
+        <span class="q-chip" onclick="useChip(this)">Brong-Ahafo yam soil tips?</span>
+      </div>
+      <div class="err-banner" id="errBanner">⚠️ Could not reach AI. Check your internet and try again.</div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" type="text" placeholder="Ask about any crop or region…" onkeydown="if(event.key==='Enter')sendMsg()"/>
+        <button class="send-btn" id="sendBtn" onclick="sendMsg()">➤</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Built for <span>Women Techsters Ghana AI Hackathon 2026</span> &nbsp;·&nbsp; SDG 2: Zero Hunger &nbsp;·&nbsp; SDG 13: Climate Action
+</footer>
+
+<script>
+/* RISK BARS */
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.querySelectorAll('.risk-fill').forEach(el=>{el.style.width=el.dataset.w+'%';});
+  },350);
+});
+
+/* CHART */
+new Chart(document.getElementById('yieldChart').getContext('2d'),{
+  type:'bar',
+  data:{
+    labels:['Maize','Cassava','Yam','Soybean','Cowpea'],
+    datasets:[{
+      data:[2.4,8.1,5.3,1.2,0.8],
+      backgroundColor:['rgba(29,158,117,.85)','rgba(29,158,117,.85)','rgba(230,126,34,.85)','rgba(230,126,34,.85)','rgba(192,57,43,.85)'],
+      borderRadius:7,borderSkipped:false,borderWidth:0
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:c=>'  '+c.parsed.y.toFixed(1)+' t/ha'},backgroundColor:'#0B3D2E',titleColor:'rgba(255,255,255,0.6)',bodyColor:'#fff',padding:10,cornerRadius:8}
+    },
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:12,family:'DM Sans'},color:'#7A7A6E'}},
+      y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11,family:'DM Sans'},color:'#7A7A6E',callback:v=>v+' t'},beginAtZero:true}
+    },
+    animation:{duration:1200,easing:'easeOutQuart'}
+  }
+});
+
+/* CHAT */
+const SYS=`You are AgroAI, a helpful agricultural advisory assistant for extension officers in Ghana. You have deep expertise in Ghanaian crops (maize, cassava, yam, soybean, cowpea, rice, plantain, groundnuts), regional growing conditions across all 16 regions, soil types, pest and disease management, climate and rainfall patterns, and smallholder farming best practices. Keep answers concise (2-4 sentences), practical and actionable, and specific to Ghana. Always mention specific regions, crop varieties, or seasonal months where relevant.`;
+const hist=[];
+
+async function sendMsg(){
+  const inp=document.getElementById('chatInput');
+  const txt=inp.value.trim();
+  if(!txt)return;
+  inp.value='';
+  document.getElementById('errBanner').style.display='none';
+  addBub(txt,'user');
+  hist.push({role:'user',content:txt});
+  const btn=document.getElementById('sendBtn');
+  btn.disabled=true;
+  const t=addBub('AgroAI is thinking…','typing');
+  try{
+    const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer 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',
+        'HTTP-Referer':'https://gloria506.github.io/Agrosight-Ghana/',
+        'X-Title':'AgroSight Ghana'
+      },
+      body:JSON.stringify({model:'mistralai/mistral-7b-instruct:free',max_tokens:1000,messages:[{role:'system',content:SYS},...hist]})
+    });
+    const d=await r.json();
+    if(d.error)throw new Error(d.error.message);
+    const reply=d.choices?.[0]?.message?.content||'Sorry, no response generated.';
+    t.remove();
+    addBub(reply,'ai');
+    hist.push({role:'assistant',content:reply});
+  }catch(e){
+    t.remove();
+    document.getElementById('errBanner').style.display='block';
+    console.error(e);
+  }
+  btn.disabled=false;
+}
+
+function useChip(el){
+  document.getElementById('chatInput').value=el.textContent;
+  document.getElementById('quickChips').style.display='none';
+  sendMsg();
+}
+
+function addBub(txt,type){
+  const d=document.createElement('div');
+  d.className=type==='user'?'bubble bubble-user':type==='typing'?'bubble bubble-typing':'bubble bubble-ai';
+  d.textContent=txt;
+  const box=document.getElementById('chatMessages');
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+  return d;
+}
+</script>
+</body>
+</html>

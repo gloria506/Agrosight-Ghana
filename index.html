@@ -305,17 +305,19 @@ async function sendMsg(){
   btn.disabled=true;
   const t=addBub('AgroAI is thinking…','typing');
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{
+    const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'anthropic-dangerous-direct-browser-access':'true'
+        'Authorization':'Bearer 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',
+        'HTTP-Referer':'https://gloria506.github.io/Agrosight-Ghana/',
+        'X-Title':'AgroSight Ghana'
       },
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYS,messages:hist})
+      body:JSON.stringify({model:'mistralai/mistral-7b-instruct:free',max_tokens:1000,messages:[{role:'system',content:SYS},...hist]})
     });
     const d=await r.json();
     if(d.error)throw new Error(d.error.message);
-    const reply=d.content?.[0]?.text||'Sorry, no response generated.';
+    const reply=d.choices?.[0]?.message?.content||'Sorry, no response generated.';
     t.remove();
     addBub(reply,'ai');
     hist.push({role:'assistant',content:reply});
